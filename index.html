@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Not All Chips Are Equal</title>
+  <meta
+    name="description"
+    content="A research presentation on AI hardware choices, including GPUs, TPUs, and FPGAs."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --border: #ccc;
+      --muted: #666;
+      --nav: #1a1d21;
+      --accent: #76b900;
+    }
+    html { scroll-behavior: smooth; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      line-height: 1.5;
+      color: #1a1d21;
+      background: #f5f5f5;
+    }
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--nav);
+      padding: 0.6rem 1rem;
+    }
+    .site-nav-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1rem;
+      justify-content: space-between;
+    }
+    .site-nav a {
+      color: #fff;
+      font-size: 0.75rem;
+      text-decoration: none;
+    }
+    .site-nav a:hover { color: var(--accent); }
+    .site-nav ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.85rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 4.5rem 1rem 2rem;
+    }
+    section {
+      margin-bottom: 2.5rem;
+    }
+    .block {
+      border: 2px dashed var(--border);
+      background: #fff;
+      padding: 1.25rem;
+      min-height: 3rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .block .label {
+      display: block;
+      color: #1a1d21;
+      margin-bottom: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .hero {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: #1e2228;
+      color: #eee;
+      padding: 2rem 1rem;
+      margin: 0 -1rem 2rem;
+    }
+    .hero .block {
+      background: transparent;
+      border-color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.7);
+      max-width: 560px;
+    }
+    .hero .block .label { color: #fff; }
+    .chip-row {
+      display: grid;
+      gap: 1rem;
+    }
+    @media (min-width: 700px) {
+      .chip-row { grid-template-columns: repeat(3, 1fr); }
+    }
+    h2 { margin: 0 0 1rem; font-size: 1.25rem; }
+    .btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: #111;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-secondary {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.45);
+      margin-left: 0.75rem;
+    }
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Primary">
+    <div class="site-nav-inner">
+      <a href="#top">Home</a>
+      <ul>
+        <li><a href="#why">Why hardware</a></li>
+        <li><a href="#gpu">GPU</a></li>
+        <li><a href="#tpu">TPU</a></li>
+        <li><a href="#fpga">FPGA</a></li>
+        <li><a href="#compare">Compare</a></li>
+        <li><a href="#energy">Energy</a></li>
+        <li><a href="#tradeoff">Efficiency vs access</a></li>
+        <li><a href="#access">Access</a></li>
+        <li><a href="#matters">Why it matters</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+        <li><a href="#sources">Sources</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <header id="top" class="hero">
+      <div>
+        <div class="block"><span class="label">Title</span></div>
+        <div class="block" style="margin-top: 1rem;"><span class="label">Subtitle</span></div>
+        <div class="block" style="margin-top: 1rem;"><span class="label">Tagline</span></div>
+        <div class="block" style="margin-top: 1rem;"><span class="label">Intro</span></div>
+        <a href="#why" class="btn">Learn more</a>
+        <a href="./research_paper%20(1).pdf" class="btn btn-secondary" target="_blank" rel="noreferrer">Open paper PDF</a>
+      </div>
+    </header>
+
+    <section id="why" aria-labelledby="h-why">
+      <h2 id="h-why">Why AI hardware matters</h2>
+      <div class="block"><span class="label">Body</span></div>
+    </section>
+
+    <section id="gpu" aria-labelledby="h-gpu">
+      <h2 id="h-gpu">GPU</h2>
+      <div class="block"><span class="label">Icon</span></div>
+      <div class="block" style="margin-top: 1rem;"><span class="label">Body</span></div>
+    </section>
+
+    <section id="tpu" aria-labelledby="h-tpu">
+      <h2 id="h-tpu">TPU</h2>
+      <div class="block"><span class="label">Icon</span></div>
+      <div class="block" style="margin-top: 1rem;"><span class="label">Body</span></div>
+    </section>
+
+    <section id="fpga" aria-labelledby="h-fpga">
+      <h2 id="h-fpga">FPGA</h2>
+      <div class="block"><span class="label">Icon</span></div>
+      <div class="block" style="margin-top: 1rem;"><span class="label">Body</span></div>
+    </section>
+
+    <section id="compare" aria-labelledby="h-compare">
+      <h2 id="h-compare">Compare</h2>
+      <div class="chip-row" style="margin-bottom: 1rem;">
+        <div class="block"><span class="label">GPU</span></div>
+        <div class="block"><span class="label">TPU</span></div>
+        <div class="block"><span class="label">FPGA</span></div>
+      </div>
+      <div class="block" style="min-height: 8rem;"><span class="label">Table</span></div>
+    </section>
+
+    <section id="energy" aria-labelledby="h-energy">
+      <h2 id="h-energy">Energy efficiency</h2>
+      <div class="block"><span class="label">TOPS/W</span></div>
+      <div class="block" style="margin-top: 1rem; min-height: 10rem;"><span class="label">Chart</span></div>
+    </section>
+
+    <section id="tradeoff" aria-labelledby="h-tradeoff">
+      <h2 id="h-tradeoff">Efficiency vs accessibility</h2>
+      <div class="block" style="min-height: 12rem;"><span class="label">Visual</span></div>
+    </section>
+
+    <section id="access" aria-labelledby="h-access">
+      <h2 id="h-access">Access and power</h2>
+      <div class="block"><span class="label">TPU access</span></div>
+      <div class="block" style="margin-top: 1rem;"><span class="label">FPGA expertise</span></div>
+      <div class="block" style="margin-top: 1rem;"><span class="label">Cost / scale</span></div>
+    </section>
+
+    <section id="matters" aria-labelledby="h-matters">
+      <h2 id="h-matters">Why this matters</h2>
+      <div class="block"><span class="label">Body</span></div>
+    </section>
+
+    <section id="conclusion" aria-labelledby="h-conc">
+      <h2 id="h-conc">Conclusion</h2>
+      <div class="block"><span class="label">Body</span></div>
+    </section>
+
+    <section id="sources" aria-labelledby="h-src">
+      <h2 id="h-src">Sources</h2>
+      <div class="block" style="min-height: 6rem;"><span class="label">Works cited</span></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Name</p>
+    <p>Title</p>
+  </footer>
+
+  <script>
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        var id = this.getAttribute("href");
+        if (!id || id === "#") return;
+        var el = document.querySelector(id);
+        if (el) {
+          e.preventDefault();
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
