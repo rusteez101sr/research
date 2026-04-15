@@ -1,258 +1,2520 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Not All Chips Are Equal</title>
-  <meta
-    name="description"
-    content="A research presentation on AI hardware choices, including GPUs, TPUs, and FPGAs."
-  />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not All Chips Are Equal — Rishit Dwivedi</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&family=Bangers&display=swap"
+    rel="stylesheet">
   <style>
     :root {
-      --border: #ccc;
-      --muted: #666;
-      --nav: #1a1d21;
-      --accent: #76b900;
+      --bg: #0D1117;
+      --card: #161B22;
+      --border: #21262D;
+      --panel: #10161D;
+      --panel-alt: #141C24;
+      --panel-red: #1A1114;
+      --panel-amber: #21180D;
+      --nav-bg: #0B1016;
+      --teal: #00C9A7;
+      --teal-glow: rgba(0, 201, 167, 0.4);
+      --amber: #F59E0B;
+      --amber-glow: rgba(245, 158, 11, 0.4);
+      --red: #FF6B6B;
+      --red-glow: rgba(255, 107, 107, 0.4);
+      --purple: #A78BFA;
+      --purple-glow: rgba(167, 139, 250, 0.4);
+      --text: #E6EDF3;
+      --muted: #8B949E;
     }
-    html { scroll-behavior: smooth; }
-    *, *::before, *::after { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Inter", system-ui, sans-serif;
-      line-height: 1.5;
-      color: #1a1d21;
-      background: #f5f5f5;
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 12px;
     }
-    .site-nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: var(--nav);
-      padding: 0.6rem 1rem;
+
+    ::-webkit-scrollbar-track {
+      background: #090c10;
     }
-    .site-nav-inner {
-      max-width: 960px;
-      margin: 0 auto;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.5rem 1rem;
-      justify-content: space-between;
+
+    ::-webkit-scrollbar-thumb {
+      background: #21262d;
+      border-radius: 6px;
+      border: 3px solid #090c10;
     }
-    .site-nav a {
-      color: #fff;
-      font-size: 0.75rem;
-      text-decoration: none;
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #30363d;
     }
-    .site-nav a:hover { color: var(--accent); }
-    .site-nav ul {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem 0.85rem;
-      list-style: none;
+
+    *,
+    *::before,
+    *::after {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-    main {
-      max-width: 960px;
+
+    html {
+      scroll-behavior: auto;
+      scroll-padding-top: 110px;
+    }
+
+    body {
+      background: #0D1117;
+      background-image: radial-gradient(circle at top right, rgba(0, 201, 167, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at bottom left, rgba(167, 139, 250, 0.05) 0%, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      overflow-x: hidden;
+      line-height: 1.7;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    .ambient-layer {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #site-circuit-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.72;
+      filter: drop-shadow(0 0 10px rgba(0, 201, 167, 0.12));
+    }
+
+    .ambient-circuit-glow {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(0, 201, 167, 0.12), transparent 26%),
+        radial-gradient(circle at 84% 12%, rgba(245, 158, 11, 0.08), transparent 24%),
+        radial-gradient(circle at 74% 84%, rgba(167, 139, 250, 0.08), transparent 30%),
+        linear-gradient(180deg, rgba(13, 17, 23, 0.08), rgba(13, 17, 23, 0.18));
+    }
+
+    .ambient-circuit-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 0%, rgba(13, 17, 23, 0.08) 62%, rgba(13, 17, 23, 0.36) 100%);
+    }
+
+    .top-nav,
+    #float-btn-wrap,
+    .chapter,
+    footer#works-cited {
+      position: relative;
+      z-index: 1;
+    }
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10000;
+      background: var(--nav-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+    }
+
+    .top-nav::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(0, 201, 167, 0.7) 30%, rgba(245, 158, 11, 0.6) 60%, transparent 100%);
+      background-size: 200% 100%;
+      animation: nav-sheen 8s linear infinite;
+    }
+
+    .top-nav-inner {
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 4.5rem 1rem 2rem;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
     }
-    section {
-      margin-bottom: 2.5rem;
+
+    .nav-brand {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 30px;
+      letter-spacing: 0.08em;
+      color: #fff;
+      text-decoration: none;
+      white-space: nowrap;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.12);
+      animation: brand-breathe 6s ease-in-out infinite;
     }
-    .block {
-      border: 2px dashed var(--border);
-      background: #fff;
-      padding: 1.25rem;
-      min-height: 3rem;
-      color: var(--muted);
-      font-size: 0.95rem;
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-    .block .label {
-      display: block;
-      color: #1a1d21;
-      margin-bottom: 0.35rem;
-      font-size: 0.85rem;
-      font-weight: 600;
+
+    .nav-links a {
+      position: relative;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
     }
-    .hero {
-      min-height: 70vh;
+
+    .nav-links a::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 15%, rgba(255, 255, 255, 0.18) 50%, transparent 85%);
+      transform: translateX(-135%);
+      transition: transform 0.45s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      border-color: rgba(0, 201, 167, 0.45);
+      background: rgba(0, 201, 167, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .nav-links a:hover::before {
+      transform: translateX(135%);
+    }
+
+    /* ══ Chapter scaffold ══════════════════════════ */
+    .chapter {
+      position: relative;
+      height: auto !important;
+      min-height: auto;
+      padding: 72px 0;
+      scroll-margin-top: 110px;
+      isolation: isolate;
+    }
+
+    .chapter::before {
+      content: '';
+      position: absolute;
+      inset: 18px 24px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: transparent;
+      box-shadow: none;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ch-sticky {
+      position: relative;
+      top: auto;
+      height: auto;
+      min-height: auto;
+      overflow: visible;
+      display: block;
+      width: 100%;
+      z-index: 1;
+    }
+
+    /* ══ Shared typography ═════════════════════════ */
+    .section-heading {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(42px, 6vw, 72px);
+      letter-spacing: 0.04em;
+      color: var(--teal);
+      text-shadow: 0 0 25px var(--teal-glow);
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-heading::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -8px;
+      width: 88px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, currentColor, transparent);
+      animation: line-breathe 4s ease-in-out infinite;
+    }
+
+    .section-heading.red {
+      color: var(--red);
+      text-shadow: 0 0 25px var(--red-glow);
+    }
+
+    .section-heading.white {
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+    }
+
+    /* ══ 1. HERO ═══════════════════════════════════ */
+    #ch-hero {
+      padding-top: 0;
+    }
+
+    #ch-hero::before {
+      inset: 16px 18px 24px;
+      border-color: rgba(0, 201, 167, 0.12);
+      background: transparent;
+    }
+
+    #ch-hero .ch-sticky {
+      min-height: calc(100vh - 88px);
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 40px 24px;
+    }
+
+    #hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 1000px;
       text-align: center;
-      background: #1e2228;
-      color: #eee;
-      padding: 2rem 1rem;
-      margin: 0 -1rem 2rem;
+      padding: 0 24px;
+      margin: 0 auto;
+      will-change: transform, opacity;
+      animation: hero-enter 1s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .hero .block {
-      background: transparent;
-      border-color: rgba(255,255,255,0.35);
-      color: rgba(255,255,255,0.7);
-      max-width: 560px;
-    }
-    .hero .block .label { color: #fff; }
-    .chip-row {
-      display: grid;
-      gap: 1rem;
-    }
-    @media (min-width: 700px) {
-      .chip-row { grid-template-columns: repeat(3, 1fr); }
-    }
-    h2 { margin: 0 0 1rem; font-size: 1.25rem; }
-    .btn {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: var(--accent);
-      color: #111;
-      font-weight: 600;
-      text-decoration: none;
-      border-radius: 6px;
-    }
-    .btn:hover { opacity: 0.9; }
-    .btn-secondary {
-      background: transparent;
+
+    .hero-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(60px, 11vw, 110px);
+      letter-spacing: 0.06em;
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.45);
-      margin-left: 0.75rem;
+      line-height: 1;
+      will-change: transform, opacity;
+      text-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+      animation: title-glow 7s ease-in-out infinite;
     }
-    footer {
-      text-align: center;
-      padding: 1.5rem;
-      font-size: 0.85rem;
+
+    .hero-subtitle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--teal);
+      margin-top: 18px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid #15554A;
+      background: #0F1B1A;
+      box-shadow: 0 0 26px rgba(0, 201, 167, 0.08);
+      will-change: transform, opacity;
+      text-shadow: 0 0 20px var(--teal-glow);
+      animation: subtitle-float 5.5s ease-in-out infinite;
+    }
+
+    .hero-author {
+      font-size: 14px;
       color: var(--muted);
-      border-top: 1px solid var(--border);
-      background: #fff;
+      margin-top: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      will-change: opacity;
+    }
+
+    .hero-hook {
+      max-width: 640px;
+      margin: 28px auto 0;
+      padding: 24px 28px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(145deg, #171E27, #111821);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      font-size: 18px;
+      font-weight: 300;
+      color: #fff;
+      will-change: transform, opacity;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      animation: hook-float 7s ease-in-out infinite;
+    }
+
+    /* ══ 2. TWO QUESTIONS ══════════════════════════ */
+    .tq-inner {
+      max-width: 1100px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      padding: 0 40px;
+      margin: 0 auto;
+    }
+
+    .tq-pull {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.2;
+      border-left: 4px solid var(--teal);
+      padding: 28px 28px 28px 32px;
+      border-radius: 24px;
+      border-top: 1px solid rgba(0, 201, 167, 0.16);
+      border-right: 1px solid rgba(0, 201, 167, 0.12);
+      border-bottom: 1px solid rgba(0, 201, 167, 0.12);
+      background: linear-gradient(145deg, #10211F, #141B24);
+      color: #fff;
+      box-shadow: -8px 0 20px -8px var(--teal-glow), 0 20px 40px rgba(0, 0, 0, 0.18);
+      will-change: transform, opacity;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .tq-pull:hover {
+      transform: translateY(-6px);
+      box-shadow: -8px 0 24px -8px var(--teal-glow), 0 24px 42px rgba(0, 0, 0, 0.28);
+      border-color: rgba(0, 201, 167, 0.22);
+    }
+
+    .tq-rqs {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .rq-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(145deg, #171E27, #121922);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+      will-change: transform, opacity;
+      transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .rq-item:hover {
+      transform: translateX(8px) translateY(-2px);
+      border-color: rgba(245, 158, 11, 0.18);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
+    }
+
+    #sd-rq1 {
+      animation: slide-in-right 0.8s 0.14s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    #sd-rq2 {
+      animation: slide-in-right 0.8s 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .rq-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--amber);
+      color: #000;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .rq-text {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ══ 3. UNDER THE HOOD ═════════════════════════ */
+    #ch-hood .ch-sticky {
+      padding: 36px 40px 0;
+    }
+
+    .hood-header {
+      max-width: 1100px;
+      width: 100%;
+      will-change: transform, opacity;
+      margin-bottom: 4px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: rise-in 0.9s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .hood-intro-para {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.75;
+      margin-top: 10px;
+      max-width: 820px;
+      will-change: transform, opacity;
+    }
+
+    .hood-intro-para em {
+      color: var(--teal);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .hood-chip-label {
+      max-width: 1100px;
+      width: 100%;
+      margin: 10px 0 6px;
+      will-change: opacity;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hood-chip-label span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      display: inline-flex;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #121922;
+    }
+
+    /* Carousel */
+    .hood-carousel-outer {
+      max-width: 1100px;
+      width: 100%;
+      overflow: visible;
+      min-height: auto;
+      margin: 0 auto;
+    }
+
+    .hood-cards-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+      height: auto;
+      width: auto !important;
+      transform: none !important;
+    }
+
+    .chip-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      width: auto !important;
+      margin-right: 0 !important;
+      height: 100%;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .chip-card::before {
+      content: '';
+      position: absolute;
+      inset: -20% -10% auto;
+      height: 180px;
+      opacity: 0;
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.16), transparent 62%);
+      transform: translateY(24px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+      pointer-events: none;
+    }
+
+    .chip-card:hover::before {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .chip-card.gpu {
+      border-top: 3px solid var(--teal);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 201, 167, 0.05);
+      animation-delay: 0.14s;
+    }
+
+    .chip-card.tpu {
+      border-top: 3px solid var(--amber);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(245, 158, 11, 0.05);
+      animation-delay: 0.24s;
+    }
+
+    .chip-card.fpga {
+      border-top: 3px solid var(--purple);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(167, 139, 250, 0.05);
+      animation-delay: 0.34s;
+    }
+
+    .chip-card.gpu:hover {
+      transform: translateY(-10px);
+      border-color: rgba(0, 201, 167, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 201, 167, 0.25);
+    }
+
+    .chip-card.tpu:hover {
+      transform: translateY(-10px);
+      border-color: rgba(245, 158, 11, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 40px rgba(245, 158, 11, 0.25);
+    }
+
+    .chip-card.fpga:hover {
+      transform: translateY(-10px);
+      border-color: rgba(167, 139, 250, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 40px rgba(167, 139, 250, 0.25);
+    }
+
+    .chip-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .chip-card.gpu .chip-header {
+      color: var(--teal);
+    }
+
+    .chip-card.tpu .chip-header {
+      color: var(--amber);
+    }
+
+    .chip-card.fpga .chip-header {
+      color: var(--purple);
+    }
+
+    .chip-svg-wrap {
+      margin-bottom: 14px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .chip-svg-wrap img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+      border-radius: 8px;
+      transition: transform 0.7s ease, filter 0.45s ease;
+    }
+
+    .chip-card:hover .chip-svg-wrap img {
+      transform: scale(1.07);
+      filter: saturate(1.08) contrast(1.04);
+    }
+
+    .chip-facts {
+      list-style: none;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .chip-facts li {
+      padding: 3px 0 3px 16px;
+      position: relative;
+      transition: transform 0.25s ease, color 0.25s ease;
+    }
+
+    .chip-card:hover .chip-facts li {
+      transform: translateX(4px);
+    }
+
+    .chip-facts li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .chip-footer {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip-best {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .eff-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--amber);
+      border: 1px solid var(--amber);
+    }
+
+    .badge-teal {
+      background: rgba(0, 201, 167, 0.15);
+      color: var(--teal);
+      border: 1px solid var(--teal);
+    }
+
+    .badge-purple {
+      background: rgba(167, 139, 250, 0.15);
+      color: var(--purple);
+      border: 1px solid var(--purple);
+    }
+
+    .lock-overlay {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid var(--amber);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .hood-dots {
+      max-width: 1100px;
+      width: 100%;
+      display: none;
+    }
+
+    .hood-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border);
+      will-change: transform, background;
+    }
+
+    /* ══ 4. BY THE NUMBERS ═════════════════════════ */
+    #ch-numbers .ch-sticky {
+      padding: 40px;
+    }
+
+    .numbers-inner {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    #sd-numbers-heading {
+      animation: rise-in 0.9s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      margin: 36px 0;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      align-items: center;
+      gap: 20px;
+      will-change: transform, opacity;
+    }
+
+    .bar-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      text-align: right;
+      line-height: 1.4;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .bar-row:hover .bar-label {
+      color: #fff;
+      transform: translateX(-4px);
+    }
+
+    .bar-track {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      height: 42px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      width: 0;
+      display: flex;
+      align-items: center;
+      padding-left: 16px;
+      padding-right: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: width 1.25s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%);
+      transform: translateX(-100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .bar-fill span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #000;
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    .bar-fill.teal {
+      background: linear-gradient(90deg, #00A68A, var(--teal));
+      box-shadow: 0 0 20px var(--teal-glow);
+    }
+
+    .bar-fill.amber {
+      background: linear-gradient(90deg, #D97706, var(--amber));
+      box-shadow: 0 0 20px var(--amber-glow);
+    }
+
+    .bar-fill.purple {
+      background: linear-gradient(90deg, #8B5CF6, var(--purple));
+      box-shadow: 0 0 20px var(--purple-glow);
+    }
+
+    .bar-fill.red {
+      background: linear-gradient(90deg, #E11D48, var(--red));
+      box-shadow: 0 0 20px var(--red-glow);
+    }
+
+    .bar-row:hover .bar-fill {
+      filter: saturate(1.14) brightness(1.04);
+    }
+
+    .numbers-callout {
+      background: var(--panel-amber);
+      border: 1px solid var(--amber);
+      border-radius: 10px;
+      padding: 22px 26px;
+      margin-bottom: 22px;
+      will-change: transform, opacity;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
+      animation: rise-in 1s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .numbers-callout::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.16) 50%, transparent 80%);
+      transform: translateX(-130%);
+      animation: sheen-pass 9s linear infinite;
+    }
+
+    .numbers-callout p {
+      color: var(--amber);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .numbers-supporting {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.8;
+      will-change: opacity;
+      animation: rise-in 1s 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    /* ══ 5. ACCESS PROBLEM ═════════════════════════ */
+    #ch-access .ch-sticky {
+      padding: 36px 40px 0;
+    }
+
+    .access-heading-wrap {
+      max-width: 1200px;
+      width: 100%;
+      margin-bottom: 22px;
+      will-change: transform, opacity;
+      margin-left: auto;
+      margin-right: auto;
+      animation: rise-in 0.9s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .access-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1200px;
+      width: 100%;
+      min-height: auto;
+      margin: 0 auto;
+    }
+
+    .access-left {
+      background: var(--panel-red);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 107, 107, 0.05);
+      border-radius: 16px;
+      padding: 32px;
+      overflow-y: auto;
+      will-change: transform, opacity;
+      transition: transform 0.35s ease, border-color 0.3s ease, box-shadow 0.35s ease;
+      position: relative;
+      animation: rise-in 0.9s 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .access-left:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 107, 107, 0.6);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.46), inset 0 0 30px rgba(255, 107, 107, 0.08);
+    }
+
+    .access-right {
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      padding: 32px;
+      will-change: transform, opacity;
+      transition: transform 0.35s ease, border-color 0.3s ease, box-shadow 0.35s ease;
+      position: relative;
+      animation: rise-in 0.9s 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .access-right:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.46), inset 0 0 30px rgba(255, 255, 255, 0.04);
+    }
+
+    .access-panel-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .barrier-stat {
+      margin-bottom: 20px;
+      will-change: transform, opacity;
+      transition: transform 0.25s ease;
+    }
+
+    .barrier-stat:hover {
+      transform: translateX(6px);
+    }
+
+    .barrier-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(26px, 3.5vw, 44px);
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1;
+    }
+
+    .barrier-caption {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .access-cycle {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.8;
+      border-top: 1px solid rgba(255, 107, 107, 0.2);
+      padding-top: 18px;
+      will-change: opacity;
+    }
+
+    .ladder-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ladder-node {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 4px;
+      will-change: opacity;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, background 0.24s ease;
+    }
+
+    .ladder-node:hover {
+      transform: translateX(8px);
+      background: #1A212B;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .ladder-node.l-teal {
+      border-color: var(--teal);
+    }
+
+    .ladder-node.l-amber {
+      border-color: var(--amber);
+    }
+
+    .ladder-node.l-red {
+      border-color: var(--red);
+    }
+
+    .ladder-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px currentColor;
+      animation: pulse-dot 2.6s ease-in-out infinite;
+    }
+
+    .ladder-node.l-teal .ladder-dot {
+      background: var(--teal);
+      color: var(--teal);
+    }
+
+    .ladder-node.l-amber .ladder-dot {
+      background: var(--amber);
+      color: var(--amber);
+    }
+
+    .ladder-node.l-red .ladder-dot {
+      background: var(--red);
+      color: var(--red);
+    }
+
+    .ladder-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .ladder-node.l-teal .ladder-name {
+      color: var(--teal);
+    }
+
+    .ladder-node.l-amber .ladder-name {
+      color: var(--amber);
+    }
+
+    .ladder-node.l-red .ladder-name {
+      color: var(--red);
+    }
+
+    .ladder-access {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .ladder-arrow {
+      width: 1px;
+      height: 12px;
+      background: var(--border);
+      margin-left: 18px;
+      animation: line-breathe 3.6s ease-in-out infinite;
+    }
+
+    .ladder-caption {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+      will-change: opacity;
+    }
+
+    /* ══ 6. HARDWARE IS POLITICS ═══════════════════ */
+    #ch-politics .ch-sticky {
+      padding: 40px;
+    }
+
+    #ch-politics .ch-sticky::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23ffffff' fill-opacity='0.02'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .politics-inner {
+      max-width: 1100px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      animation: rise-in 1s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .politics-heading-wrap {
+      will-change: transform, opacity;
+      animation: rise-in 0.9s 0.04s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .politics-cols {
+      display: grid;
+      grid-template-columns: 1fr 4px 1fr;
+      gap: 0;
+      margin-top: 44px;
+      align-items: start;
+    }
+
+    .politics-divider {
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.3), var(--amber), rgba(245, 158, 11, 0.3));
+      margin: 0 40px;
+      align-self: stretch;
+      min-height: 180px;
+      box-shadow: 0 0 24px rgba(245, 158, 11, 0.25);
+      animation: divider-glow 5s ease-in-out infinite;
+    }
+
+    .politics-col {
+      padding: 28px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: linear-gradient(145deg, #171E27, #111821);
+      box-shadow: 0 20px 42px rgba(0, 0, 0, 0.22);
+      transition: transform 0.32s ease, box-shadow 0.32s ease, border-color 0.32s ease;
+    }
+
+    .politics-col:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.34);
+    }
+
+    .politics-col-head {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .politics-col p {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.85;
+    }
+
+    .politics-col-left {
+      will-change: transform, opacity;
+    }
+
+    .politics-col-right {
+      will-change: transform, opacity;
+    }
+
+    /* ══ 7. CONCLUSION ═════════════════════════════ */
+    #ch-conclusion .ch-sticky {
+      padding: 40px;
+    }
+
+    .conclusion-inner {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+      will-change: transform;
+      margin: 0 auto;
+      animation: rise-in 1s 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .conclusion-p {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.85;
+      margin-bottom: 18px;
+      will-change: transform, opacity;
+    }
+
+    .hardware-policy {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(56px, 9vw, 96px);
+      letter-spacing: 0.04em;
+      color: transparent;
+      margin: 40px 0 14px;
+      line-height: 1;
+      will-change: transform, opacity;
+      background: linear-gradient(100deg, #ffffff 12%, #00C9A7 40%, #ffffff 62%, #F59E0B 88%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow: none;
+      animation: text-sheen 10s linear infinite;
+    }
+
+    .policy-sub {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      will-change: opacity;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .dl-btn-wrap {
+      margin-top: 36px;
+      display: flex;
+      justify-content: center;
+      will-change: transform, opacity;
+    }
+
+    /* ══ Download button ══════════════════════════ */
+    .dl-btn {
+      position: relative;
+      overflow: hidden;
+      font-family: 'Bangers', cursive;
+      font-size: 28px;
+      letter-spacing: 0.05em;
+      background: var(--amber);
+      color: #000;
+      border: 3px solid #000;
+      border-radius: 8px;
+      padding: 14px 36px;
+      text-decoration: none;
+      display: inline-block;
+      transform: rotate(-2deg);
+      box-shadow: 6px 6px 0px #000, 0 0 30px var(--amber-glow);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .dl-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.4) 50%, transparent 80%);
+      transform: translateX(-135%) skewX(-18deg);
+    }
+
+    .dl-btn:hover {
+      transform: rotate(0deg) scale(1.05);
+      box-shadow: 8px 8px 0px #000, 0 0 50px var(--amber);
+      background: #ffb732;
+    }
+
+    .dl-btn:hover::before {
+      animation: button-sheen 0.8s ease;
+    }
+
+    #float-btn-wrap {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: float-widget 5.5s ease-in-out infinite;
+    }
+
+    .starburst {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      animation: starburst-pulse 3s infinite;
+      z-index: -1;
+    }
+
+    @keyframes starburst-pulse {
+
+      0%,
+      100% {
+        opacity: 0.5;
+        transform: scale(1) rotate(0deg);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.1) rotate(15deg);
+      }
+    }
+
+    .dl-btn.float-dl {
+      font-size: 18px;
+      padding: 10px 22px;
+      transform: rotate(-2deg);
+      box-shadow: 4px 4px 0px #000, 0 0 20px var(--amber-glow);
+    }
+
+    .dl-btn.float-dl:hover {
+      transform: rotate(0deg) scale(1.05);
+      box-shadow: 6px 6px 0px #000, 0 0 40px var(--amber);
+    }
+
+    /* ══ Works Cited (static footer) ══════════════ */
+    footer#works-cited {
+      background: #090D12;
+      border-top: 2px solid var(--teal);
+      padding: 60px 40px;
+      scroll-margin-top: 110px;
+    }
+
+    .wc-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 32px;
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: linear-gradient(145deg, #161D26, #111820);
+      box-shadow: 0 22px 48px rgba(0, 0, 0, 0.26);
+      animation: rise-in 1s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .wc-heading {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--teal);
+      margin-bottom: 28px;
+    }
+
+    .wc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .wc-list li {
+      font-size: 13px;
+      color: rgba(230, 237, 243, 0.65);
+      line-height: 1.7;
+      padding-left: 20px;
+      position: relative;
+      transition: transform 0.24s ease, color 0.24s ease;
+    }
+
+    .wc-list li:hover {
+      transform: translateX(6px);
+      color: rgba(230, 237, 243, 0.95);
+    }
+
+    .wc-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 8px;
+      height: 1px;
+      background: var(--muted);
+    }
+
+    @keyframes orb-drift-a {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      to {
+        transform: translate3d(-60px, 50px, 0) scale(1.12);
+      }
+    }
+
+    @keyframes orb-drift-b {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      to {
+        transform: translate3d(90px, -70px, 0) scale(1.2);
+      }
+    }
+
+    @keyframes orb-drift-c {
+      from {
+        transform: translate3d(0, 0, 0) scale(0.96);
+      }
+
+      to {
+        transform: translate3d(-40px, 60px, 0) scale(1.14);
+      }
+    }
+
+    @keyframes body-aurora {
+      0% {
+        background-position: 100% 0%, 0% 100%;
+      }
+
+      50% {
+        background-position: 82% 18%, 14% 86%;
+      }
+
+      100% {
+        background-position: 64% 10%, 8% 92%;
+      }
+    }
+
+    @keyframes grid-drift {
+      from {
+        transform: translate3d(0, 0, 0);
+      }
+
+      to {
+        transform: translate3d(-70px, -40px, 0);
+      }
+    }
+
+    @keyframes wave-sweep-a {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+      }
+
+      100% {
+        transform: translate3d(-4%, 3%, 0) rotate(8deg) scale(1.08);
+      }
+    }
+
+    @keyframes wave-sweep-b {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+      }
+
+      100% {
+        transform: translate3d(5%, -4%, 0) rotate(-7deg) scale(1.12);
+      }
+    }
+
+    @keyframes nav-sheen {
+      from {
+        background-position: 200% 0;
+      }
+
+      to {
+        background-position: -40% 0;
+      }
+    }
+
+    @keyframes brand-breathe {
+      0%,
+      100% {
+        transform: translateY(0);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.12);
+      }
+
+      50% {
+        transform: translateY(-1px);
+        text-shadow: 0 0 24px rgba(0, 201, 167, 0.16);
+      }
+    }
+
+    @keyframes line-breathe {
+      0%,
+      100% {
+        opacity: 0.55;
+        transform: scaleX(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scaleX(1.08);
+      }
+    }
+
+    @keyframes hero-enter {
+      from {
+        opacity: 0;
+        transform: translateY(34px) scale(0.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes title-glow {
+      0%,
+      100% {
+        text-shadow: 0 0 34px rgba(255, 255, 255, 0.16), 0 0 12px rgba(0, 201, 167, 0.08);
+      }
+
+      50% {
+        text-shadow: 0 0 50px rgba(255, 255, 255, 0.24), 0 0 24px rgba(0, 201, 167, 0.14);
+      }
+    }
+
+    @keyframes subtitle-float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-4px);
+      }
+    }
+
+    @keyframes hook-float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    @keyframes rise-in {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slide-in-right {
+      from {
+        opacity: 0;
+        transform: translateX(36px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes sheen-pass {
+      0% {
+        transform: translateX(-130%);
+      }
+
+      100% {
+        transform: translateX(130%);
+      }
+    }
+
+    @keyframes pulse-dot {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.86;
+      }
+
+      50% {
+        transform: scale(1.35);
+        opacity: 1;
+      }
+    }
+
+    @keyframes divider-glow {
+      0%,
+      100% {
+        opacity: 0.75;
+        box-shadow: 0 0 18px rgba(245, 158, 11, 0.18);
+      }
+
+      50% {
+        opacity: 1;
+        box-shadow: 0 0 28px rgba(245, 158, 11, 0.34);
+      }
+    }
+
+    @keyframes text-sheen {
+      from {
+        background-position: 0% 50%;
+      }
+
+      to {
+        background-position: 200% 50%;
+      }
+    }
+
+    @keyframes button-sheen {
+      from {
+        transform: translateX(-135%) skewX(-18deg);
+      }
+
+      to {
+        transform: translateX(135%) skewX(-18deg);
+      }
+    }
+
+    @keyframes float-widget {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-7px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ══ Responsive ════════════════════════════════ */
+    @media (max-width: 900px) {
+      .top-nav-inner {
+        padding: 14px 18px;
+      }
+
+      .nav-brand {
+        font-size: 24px;
+      }
+
+      .nav-links {
+        justify-content: flex-start;
+      }
+
+      .chapter {
+        padding: 56px 0;
+      }
+
+      .chapter::before {
+        inset: 12px;
+        border-radius: 24px;
+      }
+
+      .tq-inner {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .hood-cards-row {
+        grid-template-columns: 1fr;
+      }
+
+      .access-split {
+        grid-template-columns: 1fr;
+      }
+
+      .politics-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .politics-divider {
+        display: none;
+      }
+
+      .politics-col {
+        padding: 0;
+      }
+
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+
+      .bar-label {
+        text-align: left;
+      }
+
+      .politics-col {
+        padding: 24px;
+      }
+
+      #float-btn-wrap {
+        bottom: 20px;
+        right: 16px;
+      }
+
+      #ch-hood .ch-sticky,
+      #ch-access .ch-sticky,
+      #ch-numbers .ch-sticky {
+        padding: 20px 20px 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      .access-left,
+      .access-right {
+        padding: 18px;
+      }
+
+      .tq-inner {
+        padding: 0 20px;
+      }
+
+      .hero-subtitle {
+        width: 100%;
+      }
+
+      .hero-hook,
+      .wc-inner {
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+
+      .bar-fill {
+        min-height: 56px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+
+      .bar-fill span {
+        white-space: normal;
+        line-height: 1.3;
+      }
     }
   </style>
 </head>
+
 <body>
-  <nav class="site-nav" aria-label="Primary">
-    <div class="site-nav-inner">
-      <a href="#top">Home</a>
-      <ul>
-        <li><a href="#why">Why hardware</a></li>
-        <li><a href="#gpu">GPU</a></li>
-        <li><a href="#tpu">TPU</a></li>
-        <li><a href="#fpga">FPGA</a></li>
-        <li><a href="#compare">Compare</a></li>
-        <li><a href="#energy">Energy</a></li>
-        <li><a href="#tradeoff">Efficiency vs access</a></li>
-        <li><a href="#access">Access</a></li>
-        <li><a href="#matters">Why it matters</a></li>
-        <li><a href="#conclusion">Conclusion</a></li>
-        <li><a href="#sources">Sources</a></li>
-      </ul>
+  <div class="ambient-layer" aria-hidden="true">
+    <canvas id="site-circuit-canvas"></canvas>
+    <span class="ambient-circuit-glow"></span>
+    <span class="ambient-circuit-vignette"></span>
+  </div>
+
+  <nav class="top-nav" aria-label="Primary">
+    <div class="top-nav-inner">
+      <a class="nav-brand" href="#ch-hero">Not All Chips Are Equal</a>
+      <div class="nav-links">
+        <a href="#ch-tq">Intro</a>
+        <a href="#ch-hood">Hardware</a>
+        <a href="#ch-numbers">Numbers</a>
+        <a href="#ch-access">Access</a>
+        <a href="#ch-politics">Politics</a>
+        <a href="#ch-conclusion">Conclusion</a>
+        <a href="#works-cited">Sources</a>
+      </div>
     </div>
   </nav>
 
-  <main>
-    <header id="top" class="hero">
-      <div>
-        <div class="block"><span class="label">Title</span></div>
-        <div class="block" style="margin-top: 1rem;"><span class="label">Subtitle</span></div>
-        <div class="block" style="margin-top: 1rem;"><span class="label">Tagline</span></div>
-        <div class="block" style="margin-top: 1rem;"><span class="label">Intro</span></div>
-        <a href="#why" class="btn">Learn more</a>
-        <a href="./research_paper%20(1).pdf" class="btn btn-secondary" target="_blank" rel="noreferrer">Open paper PDF</a>
+  <!-- ══ Floating Download Button ══════════════════════ -->
+  <div id="float-btn-wrap">
+    <svg class="starburst" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <polygon
+        points="60,5 68,42 95,20 76,50 115,50 82,66 105,95 68,78 70,115 50,85 30,115 32,78 -5,95 18,66 -15,50 24,50 5,20 44,42"
+        fill="#F59E0B" opacity="0.3" />
+      <polygon
+        points="60,12 66,40 88,22 72,48 108,48 80,62 100,88 68,74 70,108 52,82 34,108 36,74 4,88 24,62 -8,48 28,48 12,22 54,40"
+        fill="#F59E0B" opacity="0.15" />
+    </svg>
+    <a href="research_paper.pdf" download class="dl-btn float-dl">↓ Read the Entire Paper Here</a>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+  Ch 1 · HERO                              (400 vh)
+══════════════════════════════════════════════════ -->
+  <div class="chapter" id="ch-hero">
+    <div class="ch-sticky">
+      <div id="hero-content">
+        <h1 class="hero-title" id="sd-hero-title">NOT ALL CHIPS<br>ARE EQUAL</h1>
+        <p class="hero-subtitle" id="sd-hero-sub">The Energy and Access Politics of AI Hardware</p>
+        <p class="hero-author" id="sd-hero-author">Rishit Dwivedi &mdash; ENGL 2500, Iowa State University, March 2026
+        </p>
+        <p class="hero-hook" id="sd-hero-hook">The processors running artificial intelligence aren't neutral &mdash;
+          they shape who gets to build AI, how much energy it burns, and who pays the price.</p>
       </div>
-    </header>
+    </div>
+  </div>
 
-    <section id="why" aria-labelledby="h-why">
-      <h2 id="h-why">Why AI hardware matters</h2>
-      <div class="block"><span class="label">Body</span></div>
-    </section>
-
-    <section id="gpu" aria-labelledby="h-gpu">
-      <h2 id="h-gpu">GPU</h2>
-      <div class="block"><span class="label">Icon</span></div>
-      <div class="block" style="margin-top: 1rem;"><span class="label">Body</span></div>
-    </section>
-
-    <section id="tpu" aria-labelledby="h-tpu">
-      <h2 id="h-tpu">TPU</h2>
-      <div class="block"><span class="label">Icon</span></div>
-      <div class="block" style="margin-top: 1rem;"><span class="label">Body</span></div>
-    </section>
-
-    <section id="fpga" aria-labelledby="h-fpga">
-      <h2 id="h-fpga">FPGA</h2>
-      <div class="block"><span class="label">Icon</span></div>
-      <div class="block" style="margin-top: 1rem;"><span class="label">Body</span></div>
-    </section>
-
-    <section id="compare" aria-labelledby="h-compare">
-      <h2 id="h-compare">Compare</h2>
-      <div class="chip-row" style="margin-bottom: 1rem;">
-        <div class="block"><span class="label">GPU</span></div>
-        <div class="block"><span class="label">TPU</span></div>
-        <div class="block"><span class="label">FPGA</span></div>
+  <!-- ══════════════════════════════════════════════════
+  Ch 2 · TWO QUESTIONS                     (350 vh)
+══════════════════════════════════════════════════ -->
+  <div class="chapter" id="ch-tq">
+    <div class="ch-sticky">
+      <div class="tq-inner">
+        <blockquote class="tq-pull" id="sd-tq-pull">
+          "The chip you use determines the cost you pay &mdash; in watts, in dollars, and in access."
+        </blockquote>
+        <div class="tq-rqs">
+          <div class="rq-item" id="sd-rq1">
+            <span class="rq-badge">RQ1</span>
+            <p class="rq-text">Which hardware accelerators are most energy-efficient for deep learning workloads?</p>
+          </div>
+          <div class="rq-item" id="sd-rq2">
+            <span class="rq-badge">RQ2</span>
+            <p class="rq-text">Does increasingly specialized AI hardware primarily advantage large technology companies
+              over smaller research institutions?</p>
+          </div>
+        </div>
       </div>
-      <div class="block" style="min-height: 8rem;"><span class="label">Table</span></div>
-    </section>
+    </div>
+  </div>
 
-    <section id="energy" aria-labelledby="h-energy">
-      <h2 id="h-energy">Energy efficiency</h2>
-      <div class="block"><span class="label">TOPS/W</span></div>
-      <div class="block" style="margin-top: 1rem; min-height: 10rem;"><span class="label">Chart</span></div>
-    </section>
+  <!-- ══════════════════════════════════════════════════
+  Ch 3 · UNDER THE HOOD                    (520 vh)
+══════════════════════════════════════════════════ -->
+  <div class="chapter" id="ch-hood">
+    <div class="ch-sticky">
 
-    <section id="tradeoff" aria-labelledby="h-tradeoff">
-      <h2 id="h-tradeoff">Efficiency vs accessibility</h2>
-      <div class="block" style="min-height: 12rem;"><span class="label">Visual</span></div>
-    </section>
+      <div class="hood-header" id="sd-hood-header">
+        <h2 class="section-heading">UNDER THE HOOD</h2>
+        <p class="hood-intro-para">
+          A car's fuel economy is measured in miles per gallon; the energy efficiency of a processor is measured as
+          <em>tera operations per second per watt (TOPS/W)</em>.
+          The term "tera" means 1 trillion; an "operation" is a fundamental mathematical calculation.
+          A higher TOPS/W means the chip does more useful work with less energy.
+          The three dominant AI accelerators differ dramatically across this metric &mdash; and those differences aren't
+          just technical.
+        </p>
+      </div>
 
-    <section id="access" aria-labelledby="h-access">
-      <h2 id="h-access">Access and power</h2>
-      <div class="block"><span class="label">TPU access</span></div>
-      <div class="block" style="margin-top: 1rem;"><span class="label">FPGA expertise</span></div>
-      <div class="block" style="margin-top: 1rem;"><span class="label">Cost / scale</span></div>
-    </section>
+      <div class="hood-chip-label" id="sd-hood-label">
+        <span id="sd-hood-label-text">GPU, TPU, and FPGA compared side by side</span>
+      </div>
 
-    <section id="matters" aria-labelledby="h-matters">
-      <h2 id="h-matters">Why this matters</h2>
-      <div class="block"><span class="label">Body</span></div>
-    </section>
+      <div class="hood-carousel-outer" id="hood-carousel-outer">
+        <div class="hood-cards-row" id="hood-cards-row">
 
-    <section id="conclusion" aria-labelledby="h-conc">
-      <h2 id="h-conc">Conclusion</h2>
-      <div class="block"><span class="label">Body</span></div>
-    </section>
+          <!-- GPU -->
+          <article class="chip-card gpu" id="sd-card-gpu">
+            <h3 class="chip-header">GPU — Graphics Processing Unit</h3>
+            <div class="chip-svg-wrap">
+              <img src="not-all-chips-are-equal/gpu.png" alt="GPU" loading="lazy">
+            </div>
+            <ul class="chip-facts">
+              <li>Originally built for video game graphics; repurposed for AI</li>
+              <li>General-purpose: handles video, crypto, neural networks</li>
+              <li>5,120 CUDA cores; ~250W per chip</li>
+              <li>Open market — anyone can buy one</li>
+              <li>De facto standard for AI research due to accessibility</li>
+              <li>Less energy-efficient than TPU for AI-specific tasks</li>
+            </ul>
+            <div class="chip-footer">
+              <span class="chip-best">Best for: large-scale training</span>
+              <span class="eff-badge badge-amber">HIGH ENERGY USE</span>
+            </div>
+          </article>
 
-    <section id="sources" aria-labelledby="h-src">
-      <h2 id="h-src">Sources</h2>
-      <div class="block" style="min-height: 6rem;"><span class="label">Works cited</span></div>
-    </section>
-  </main>
+          <!-- TPU -->
+          <article class="chip-card tpu" id="sd-card-tpu">
+            <div class="lock-overlay">
+              <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+                <rect x="2" y="5" width="6" height="7" rx="1" fill="#F59E0B" />
+                <path d="M3 5V3.5a2 2 0 014 0V5" stroke="#F59E0B" stroke-width="1.2" fill="none" />
+              </svg>
+              Google Cloud Only
+            </div>
+            <h3 class="chip-header">TPU — Tensor Processing Unit</h3>
+            <div class="chip-svg-wrap">
+              <img src="not-all-chips-are-equal/tpu.png" alt="TPU" loading="lazy">
+            </div>
+            <ul class="chip-facts">
+              <li>Built by Google specifically for matrix multiplication</li>
+              <li>Systolic array design: data flows cell to cell without writing back to memory</li>
+              <li>TPU v4: 2.1× faster than TPU v3, 2.7× better performance per watt</li>
+              <li>Outperforms NVIDIA V100 by 1.1×–2.7× depending on task</li>
+              <li>Available only through Google Cloud — cannot be purchased</li>
+              <li>Google controls both hardware AND TensorFlow software stack</li>
+            </ul>
+            <div class="chip-footer">
+              <span class="chip-best">Best for: AI-specific workloads</span>
+              <span class="eff-badge badge-teal">MOST EFFICIENT</span>
+            </div>
+          </article>
 
-  <footer>
-    <p>Name</p>
-    <p>Title</p>
+          <!-- FPGA -->
+          <article class="chip-card fpga" id="sd-card-fpga">
+            <h3 class="chip-header">FPGA — Field-Programmable Gate Array</h3>
+            <div class="chip-svg-wrap">
+              <img src="not-all-chips-are-equal/fgpa.png" alt="FPGA" loading="lazy">
+            </div>
+            <ul class="chip-facts">
+              <li>Reprogrammable at the hardware level for any specific task</li>
+              <li>Removes wasted power from unused circuits</li>
+              <li>1.39× more energy-efficient than GPU for edge inference</li>
+              <li>4.67× more efficient than CPU</li>
+              <li>Railway inspection: 60 images/sec, &lt;17ms latency</li>
+              <li>Requires specialized hardware-design expertise to program</li>
+            </ul>
+            <div class="chip-footer">
+              <span class="chip-best">Best for: inference at the edge</span>
+              <span class="eff-badge badge-purple">SPECIALIZED EFFICIENT</span>
+            </div>
+          </article>
+
+        </div><!-- .hood-cards-row -->
+      </div><!-- .hood-carousel-outer -->
+
+      <div class="hood-dots" id="hood-dots">
+        <div class="hood-dot" id="dot-0"></div>
+        <div class="hood-dot" id="dot-1"></div>
+        <div class="hood-dot" id="dot-2"></div>
+      </div>
+
+    </div><!-- .ch-sticky -->
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+  Ch 4 · BY THE NUMBERS                    (460 vh)
+══════════════════════════════════════════════════ -->
+  <div class="chapter" id="ch-numbers">
+    <div class="ch-sticky">
+      <div class="numbers-inner">
+
+        <div id="sd-numbers-heading" style="will-change:transform,opacity">
+          <h2 class="section-heading">BY THE NUMBERS</h2>
+        </div>
+
+        <div class="bar-chart">
+          <div class="bar-row" id="sd-bar0">
+            <div class="bar-label">TPU v4 vs TPU v3</div>
+            <div class="bar-track">
+              <div class="bar-fill teal" id="bf0" data-target="88"><span>2.7× better perf/watt vs TPU v3</span></div>
+            </div>
+          </div>
+          <div class="bar-row" id="sd-bar1">
+            <div class="bar-label">NVIDIA V100 vs AMD GPU</div>
+            <div class="bar-track">
+              <div class="bar-fill amber" id="bf1" data-target="72"><span>5.2× more efficient than AMD GPUs</span></div>
+            </div>
+          </div>
+          <div class="bar-row" id="sd-bar2">
+            <div class="bar-label">FPGA vs GPU (edge)</div>
+            <div class="bar-track">
+              <div class="bar-fill purple" id="bf2" data-target="52"><span>1.39× more efficient than GPU</span></div>
+            </div>
+          </div>
+          <div class="bar-row" id="sd-bar3">
+            <div class="bar-label">FPGA vs CPU (edge)</div>
+            <div class="bar-track">
+              <div class="bar-fill red" id="bf3" data-target="38"><span>4.67× more efficient than CPU</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numbers-callout" id="sd-numbers-callout">
+          <p>No single accelerator is universally superior. The "best" chip depends entirely on the specific task being
+            performed.</p>
+        </div>
+
+        <p class="numbers-supporting" id="sd-numbers-support">
+          For translation tasks, TPUs outperform the NVIDIA V100 by 1.1×–1.7×. For image-recognition workloads —
+          convolutional neural networks — that advantage widens to 1.5×–2.7×. The gap is not constant; it is
+          task-dependent. This means that comparing chips in the abstract obscures the real question: what are they
+          being asked to do, and who gets to ask it?
+        </p>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+  Ch 5 · ACCESS PROBLEM                    (500 vh)
+══════════════════════════════════════════════════ -->
+  <div class="chapter" id="ch-access">
+    <div class="ch-sticky">
+
+      <div class="access-heading-wrap" id="sd-access-heading">
+        <h2 class="section-heading red">WHO GETS THE CHIP?</h2>
+      </div>
+
+      <div class="access-split">
+
+        <!-- LEFT: Barriers -->
+        <div class="access-left" id="sd-access-left">
+          <p class="access-panel-label">THE BARRIERS</p>
+          <div class="barrier-stat" id="sd-stat0">
+            <div class="barrier-number">$20,000,000</div>
+            <div class="barrier-caption">Cost to train one large language model (Pathways Language Model)</div>
+          </div>
+          <div class="barrier-stat" id="sd-stat1">
+            <div class="barrier-number">$3,000,000<span style="font-size:0.55em">/mo</span></div>
+            <div class="barrier-caption">Monthly compute cost estimate for frontier model training</div>
+          </div>
+          <div class="barrier-stat" id="sd-stat2">
+            <div class="barrier-number">$50–$100<span style="font-size:0.55em">/hr</span></div>
+            <div class="barrier-caption">Cloud GPU rental cost for smaller institutions</div>
+          </div>
+          <p class="access-cycle" id="sd-access-cycle">
+            Smaller businesses or startups may consequently struggle to successfully enter this field, leaving the
+            immense processing power of LLMs in the hands of a few. Smaller organizations must either use older, less
+            capable technology or rent cloud computing power at a cost that can be prohibitively expensive if done on a
+            regular basis.
+          </p>
+        </div>
+
+        <!-- RIGHT: Access Ladder -->
+        <div class="access-right" id="sd-access-right">
+          <p class="access-panel-label">THE STRUCTURE</p>
+          <div class="ladder-wrap">
+            <div class="ladder-node l-teal" id="ln0">
+              <div class="ladder-dot"></div><span class="ladder-name">Big Tech (Google, Microsoft, Meta)</span><span
+                class="ladder-access">Full access</span>
+            </div>
+            <div class="ladder-arrow"></div>
+            <div class="ladder-node l-amber" id="ln1">
+              <div class="ladder-dot"></div><span class="ladder-name">Cloud Providers</span><span
+                class="ladder-access">Paid access</span>
+            </div>
+            <div class="ladder-arrow"></div>
+            <div class="ladder-node l-amber" id="ln2">
+              <div class="ladder-dot"></div><span class="ladder-name">Well-funded Universities</span><span
+                class="ladder-access">Limited access</span>
+            </div>
+            <div class="ladder-arrow"></div>
+            <div class="ladder-node l-red" id="ln3">
+              <div class="ladder-dot"></div><span class="ladder-name">Startups</span><span
+                class="ladder-access">Expensive access</span>
+            </div>
+            <div class="ladder-arrow"></div>
+            <div class="ladder-node l-red" id="ln4">
+              <div class="ladder-dot"></div>
+              <span class="ladder-name">Global South Institutions</span>
+              <span class="ladder-access">
+                <svg width="12" height="14" viewBox="0 0 10 12" fill="none"
+                  style="vertical-align:middle;margin-right:4px">
+                  <rect x="2" y="5" width="6" height="7" rx="1" fill="#FF6B6B" />
+                  <path d="M3 5V3.5a2 2 0 014 0V5" stroke="#FF6B6B" stroke-width="1.2" fill="none" />
+                </svg>Excluded
+              </span>
+            </div>
+          </div>
+          <p class="ladder-caption" id="sd-ladder-caption">
+            The most energy-efficient hardware is also the least accessible. This is not a coincidence.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+  Ch 6 · HARDWARE IS POLITICS              (400 vh)
+══════════════════════════════════════════════════ -->
+  <div class="chapter" id="ch-politics">
+    <div class="ch-sticky">
+      <div class="politics-inner">
+        <div class="politics-heading-wrap" id="sd-politics-heading">
+          <h2 class="section-heading white">HARDWARE IS POLITICS</h2>
+        </div>
+        <div class="politics-cols">
+          <div class="politics-col politics-col-left" id="sd-pol-left">
+            <p class="politics-col-head">WHAT GETS BUILT</p>
+            <p>Since Google, Microsoft, and Meta are the leaders in building large-scale AI systems, these systems focus
+              on their business models: ads, content recommendation, consumer services. The problems that command the
+              most investment are the ones that generate the most revenue. Climate change modeling, indigenous language
+              preservation, rural healthcare diagnostics — these are not ignored because they are unimportant. They are
+              deferred because the entities who control the hardware are not accountable to those communities.</p>
+          </div>
+          <div class="politics-divider"></div>
+          <div class="politics-col politics-col-right" id="sd-pol-right">
+            <p class="politics-col-head">THE NAIRR PROBLEM</p>
+            <p>Proposed ways to "democratize" AI through programs like the National AI Research Resource (NAIRR) have
+              relied solely on licenses from Big Tech companies that have control over all aspects of the underlying
+              computing infrastructure — rather than working to create independent third-party resources. This means
+              that even public programs designed to broaden access are structurally dependent on the same corporations
+              that created the access gap in the first place. Access granted through a license is access that can be
+              revoked.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+  Ch 7 · CONCLUSION                        (450 vh)
+══════════════════════════════════════════════════ -->
+  <div class="chapter" id="ch-conclusion">
+    <div class="ch-sticky">
+      <div class="conclusion-inner" id="conclusion-inner">
+        <p class="conclusion-p" id="sd-cp0">GPUs democratized early AI research by making programmable parallel compute
+          available on the open market. TPUs pushed the frontier of efficiency but placed it behind a proprietary wall.
+          FPGAs opened a path to greener, task-specific AI that remains underutilized — partly because the expertise
+          required to program them is itself unevenly distributed.</p>
+        <p class="conclusion-p" id="sd-cp1">The GPU origin story — hardware built for video games, accidentally powering
+          a revolution — captures something important: the infrastructure of AI was never designed for the purpose it
+          now serves. Each generation of accelerator has been shaped by the economic interests of whoever funded its
+          development.</p>
+        <p class="conclusion-p" id="sd-cp2">When the most capable AI hardware is accessible only to Google, Microsoft,
+          and a handful of other giants, the questions of who builds AI, whose problems it solves, and whose values it
+          encodes are answered by default — not by choice. Hardware is not a neutral technical detail. It is the
+          foundation upon which the entire AI ecosystem is built, and right now, that foundation is unequal.</p>
+        <div class="hardware-policy" id="sd-hw-policy">HARDWARE IS POLICY.</div>
+        <p class="policy-sub" id="sd-policy-sub">The decisions made about which chips get built, sold, and shared are
+          not technical decisions. They are political ones.</p>
+        <div class="dl-btn-wrap" id="sd-dl-btn">
+          <a href="research_paper.pdf" download class="dl-btn">↓ Read the Entire Paper Here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+  WORKS CITED (static — no sticky needed)
+══════════════════════════════════════════════════ -->
+  <footer id="works-cited">
+    <div class="wc-inner">
+      <h2 class="wc-heading">WORKS CITED</h2>
+      <ul class="wc-list">
+        <li>Silvano, Cristina, et al. "A Survey on Deep Learning Hardware Accelerators for Heterogeneous HPC Platforms."
+          <em>ACM Computing Surveys</em>, vol. 57, no. 11, June 2025.</li>
+        <li>Wang, Yuxin, et al. "Benchmarking the Performance and Energy Efficiency of AI Accelerators for AI Training."
+          <em>arXiv</em>, 2019, arXiv:1909.06842.</li>
+        <li>Urías Jiménez, Arturo. "Beyond the GPU: The Strategic Role of FPGAs in the Next Wave of AI." <em>arXiv</em>,
+          4 Nov. 2025, arXiv:2511.11614.</li>
+        <li>Kak, Amba, and Sarah Myers West. "AI Now 2023 Landscape: Confronting Tech Power." <em>AI Now Institute</em>,
+          11 Apr. 2023.</li>
+        <li>Jouppi, Norman P., et al. "In-Datacenter Performance Analysis of a Tensor Processing Unit." <em>ISCA
+            '17</em>, ACM, June 2017.</li>
+      </ul>
+    </div>
   </footer>
 
   <script>
-    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-      a.addEventListener("click", function (e) {
-        var id = this.getAttribute("href");
-        if (!id || id === "#") return;
-        var el = document.querySelector(id);
-        if (el) {
-          e.preventDefault();
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.bar-fill[data-target]').forEach((bar) => {
+          const target = Number(bar.getAttribute('data-target'));
+          if (!Number.isNaN(target)) {
+            bar.style.width = `${target}%`;
+          }
+        });
       });
     });
+
+    (function () {
+      const canvas = document.getElementById('site-circuit-canvas');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const GRID = 56;
+      const TRACE_COLORS = {
+        teal: '#00C9A7',
+        amber: '#F59E0B',
+        purple: '#A78BFA',
+        white: 'rgba(230, 237, 243, 0.7)',
+      };
+      let t = 0;
+      let chips = [];
+      let junctions = [];
+      let segments = [];
+      let pulses = [];
+      let junctionKeys = new Set();
+
+      function snap(value) {
+        return Math.round(value / GRID) * GRID;
+      }
+
+      function roundedRectPath(x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      function addJunction(x, y, color = TRACE_COLORS.teal, size = 2.4) {
+        const key = `${Math.round(x)}:${Math.round(y)}:${color}`;
+        if (junctionKeys.has(key)) return;
+        junctionKeys.add(key);
+        junctions.push({ x, y, color, size });
+      }
+
+      function addSegment(start, end, options = {}) {
+        const length = Math.hypot(end.x - start.x, end.y - start.y);
+        if (length < 2) return;
+
+        const segment = {
+          x1: start.x,
+          y1: start.y,
+          x2: end.x,
+          y2: end.y,
+          dx: (end.x - start.x) / length,
+          dy: (end.y - start.y) / length,
+          length,
+          color: options.color || TRACE_COLORS.teal,
+          width: options.width || 1.2,
+          phase: Math.random() * Math.PI * 2,
+        };
+
+        segments.push(segment);
+        addJunction(start.x, start.y, segment.color, options.junctionSize || 2.1);
+        addJunction(end.x, end.y, segment.color, options.junctionSize || 2.1);
+
+        const pulseCount = Math.max(1, Math.round(length / 220));
+        for (let i = 0; i < pulseCount; i += 1) {
+          pulses.push({
+            segmentIndex: segments.length - 1,
+            phase: (i / pulseCount) + Math.random() * 0.18,
+            speed: 0.045 + Math.random() * 0.055,
+            radius: 1.8 + Math.random() * 1.4,
+            color: segment.color,
+          });
+        }
+      }
+
+      function addRoute(points, options = {}) {
+        for (let i = 0; i < points.length - 1; i += 1) {
+          addSegment(points[i], points[i + 1], options);
+        }
+      }
+
+      function createChip(cx, cy, w, h, accent) {
+        const x = snap(cx) - (w / 2);
+        const y = snap(cy) - (h / 2);
+        const pinOffsets = [-26, 0, 26];
+        const chip = {
+          x,
+          y,
+          w,
+          h,
+          accent,
+          pins: {
+            left: pinOffsets.map((offset) => ({ x: x - 12, y: y + h / 2 + offset })),
+            right: pinOffsets.map((offset) => ({ x: x + w + 12, y: y + h / 2 + offset })),
+            top: [-40, 0, 40].map((offset) => ({ x: x + w / 2 + offset, y: y - 12 })),
+            bottom: [-40, 0, 40].map((offset) => ({ x: x + w / 2 + offset, y: y + h + 12 })),
+          },
+        };
+
+        Object.values(chip.pins).forEach((side) => {
+          side.forEach((pin) => addJunction(pin.x, pin.y, accent, 2.5));
+        });
+
+        chips.push(chip);
+        return chip;
+      }
+
+      function build() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        chips = [];
+        junctions = [];
+        segments = [];
+        pulses = [];
+        junctionKeys = new Set();
+
+        const leftBus = snap(width * 0.08);
+        const rightBus = snap(width * 0.92);
+        const topBus = snap(height * 0.16);
+        const middleBus = snap(height * 0.48);
+        const bottomBus = snap(height * 0.82);
+        const spineA = snap(width * 0.34);
+        const spineB = snap(width * 0.66);
+
+        const gpuChip = createChip(width * 0.18, height * 0.24, 152, 92, TRACE_COLORS.teal);
+        const tpuChip = createChip(width * 0.80, height * 0.22, 136, 84, TRACE_COLORS.amber);
+        const coreChip = createChip(width * 0.50, height * 0.52, 176, 102, TRACE_COLORS.teal);
+        const fpgaChip = createChip(width * 0.18, height * 0.77, 144, 88, TRACE_COLORS.purple);
+        const edgeChip = createChip(width * 0.80, height * 0.76, 144, 88, TRACE_COLORS.teal);
+
+        addRoute([{ x: leftBus, y: topBus }, { x: rightBus, y: topBus }], { color: TRACE_COLORS.white, width: 1 });
+        addRoute([{ x: leftBus, y: middleBus }, { x: rightBus, y: middleBus }], { color: TRACE_COLORS.teal, width: 1.2 });
+        addRoute([{ x: leftBus, y: bottomBus }, { x: rightBus, y: bottomBus }], { color: TRACE_COLORS.purple, width: 1 });
+        addRoute([{ x: spineA, y: topBus }, { x: spineA, y: bottomBus }], { color: TRACE_COLORS.teal, width: 1 });
+        addRoute([{ x: spineB, y: topBus }, { x: spineB, y: bottomBus }], { color: TRACE_COLORS.amber, width: 1 });
+
+        addRoute([
+          gpuChip.pins.right[1],
+          { x: spineA, y: gpuChip.pins.right[1].y },
+          { x: spineA, y: middleBus - GRID },
+          { x: coreChip.pins.top[0].x, y: middleBus - GRID },
+          coreChip.pins.top[0],
+        ], { color: TRACE_COLORS.teal, width: 1.5 });
+
+        addRoute([
+          tpuChip.pins.left[1],
+          { x: spineB, y: tpuChip.pins.left[1].y },
+          { x: spineB, y: middleBus - GRID },
+          { x: coreChip.pins.top[2].x, y: middleBus - GRID },
+          coreChip.pins.top[2],
+        ], { color: TRACE_COLORS.amber, width: 1.5 });
+
+        addRoute([
+          coreChip.pins.bottom[0],
+          { x: coreChip.pins.bottom[0].x, y: bottomBus - GRID },
+          { x: fpgaChip.pins.top[1].x, y: bottomBus - GRID },
+          fpgaChip.pins.top[1],
+        ], { color: TRACE_COLORS.purple, width: 1.35 });
+
+        addRoute([
+          coreChip.pins.bottom[2],
+          { x: coreChip.pins.bottom[2].x, y: bottomBus - GRID },
+          { x: edgeChip.pins.top[1].x, y: bottomBus - GRID },
+          edgeChip.pins.top[1],
+        ], { color: TRACE_COLORS.teal, width: 1.35 });
+
+        addRoute([
+          gpuChip.pins.bottom[1],
+          { x: gpuChip.pins.bottom[1].x, y: middleBus },
+          { x: leftBus + GRID, y: middleBus },
+          { x: leftBus + GRID, y: bottomBus },
+          fpgaChip.pins.top[0],
+        ], { color: TRACE_COLORS.teal, width: 1.1 });
+
+        addRoute([
+          tpuChip.pins.bottom[1],
+          { x: tpuChip.pins.bottom[1].x, y: middleBus },
+          { x: rightBus - GRID, y: middleBus },
+          { x: rightBus - GRID, y: bottomBus },
+          edgeChip.pins.top[2],
+        ], { color: TRACE_COLORS.amber, width: 1.1 });
+
+        addRoute([
+          { x: leftBus, y: topBus + GRID },
+          { x: leftBus, y: middleBus - GRID },
+          { x: gpuChip.pins.left[0].x, y: middleBus - GRID },
+          gpuChip.pins.left[0],
+        ], { color: TRACE_COLORS.white, width: 0.95 });
+
+        addRoute([
+          { x: rightBus, y: topBus + GRID },
+          { x: rightBus, y: middleBus - GRID },
+          { x: tpuChip.pins.right[0].x, y: middleBus - GRID },
+          tpuChip.pins.right[0],
+        ], { color: TRACE_COLORS.white, width: 0.95 });
+
+        addRoute([
+          { x: leftBus + GRID, y: bottomBus },
+          { x: leftBus + GRID, y: bottomBus + GRID },
+          { x: spineA - GRID, y: bottomBus + GRID },
+          { x: spineA - GRID, y: bottomBus - GRID / 2 },
+        ], { color: TRACE_COLORS.purple, width: 0.95 });
+
+        addRoute([
+          { x: rightBus - GRID, y: bottomBus },
+          { x: rightBus - GRID, y: bottomBus + GRID },
+          { x: spineB + GRID, y: bottomBus + GRID },
+          { x: spineB + GRID, y: bottomBus - GRID / 2 },
+        ], { color: TRACE_COLORS.teal, width: 0.95 });
+      }
+
+      function drawCanvas() {
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+
+        ctx.clearRect(0, 0, width, height);
+        t += 0.005;
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(230, 237, 243, 0.045)';
+        for (let x = 0; x < width + GRID; x += GRID) {
+          for (let y = 0; y < height + GRID; y += GRID) {
+            if ((x + y) % (GRID * 3) === 0) {
+              ctx.fillRect(x - 0.7, y - 0.7, 1.4, 1.4);
+            }
+          }
+        }
+        ctx.restore();
+
+        segments.forEach((segment) => {
+          ctx.save();
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = segment.color;
+          ctx.shadowBlur = 14;
+          ctx.shadowColor = segment.color;
+          ctx.globalAlpha = 0.11 + 0.06 * Math.sin(t * 1.1 + segment.phase);
+          ctx.lineWidth = segment.width + 1.4;
+          ctx.beginPath();
+          ctx.moveTo(segment.x1, segment.y1);
+          ctx.lineTo(segment.x2, segment.y2);
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.save();
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = segment.color;
+          ctx.globalAlpha = 0.42 + 0.16 * Math.sin(t * 1.6 + segment.phase);
+          ctx.lineWidth = segment.width;
+          ctx.beginPath();
+          ctx.moveTo(segment.x1, segment.y1);
+          ctx.lineTo(segment.x2, segment.y2);
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        pulses.forEach((pulse) => {
+          const segment = segments[pulse.segmentIndex];
+          if (!segment) return;
+
+          const progress = (t * pulse.speed + pulse.phase) % 1;
+          const x = segment.x1 + (segment.x2 - segment.x1) * progress;
+          const y = segment.y1 + (segment.y2 - segment.y1) * progress;
+          const trail = 10;
+
+          ctx.save();
+          ctx.strokeStyle = pulse.color;
+          ctx.fillStyle = pulse.color;
+          ctx.globalAlpha = 0.7;
+          ctx.lineWidth = pulse.radius;
+          ctx.lineCap = 'round';
+          ctx.shadowBlur = 14;
+          ctx.shadowColor = pulse.color;
+          ctx.beginPath();
+          ctx.moveTo(x - segment.dx * trail, y - segment.dy * trail);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(x, y, pulse.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        junctions.forEach((junction, index) => {
+          const pulse = 0.75 + 0.25 * Math.sin(t * 2 + index * 0.3);
+
+          ctx.save();
+          ctx.fillStyle = junction.color;
+          ctx.globalAlpha = 0.7 * pulse;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = junction.color;
+          ctx.beginPath();
+          ctx.arc(junction.x, junction.y, junction.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          ctx.save();
+          ctx.strokeStyle = junction.color;
+          ctx.globalAlpha = 0.18 * pulse;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(junction.x, junction.y, junction.size + 3.2, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        chips.forEach((chip, index) => {
+          const shimmer = 0.84 + 0.16 * Math.sin(t * 1.1 + index);
+
+          ctx.save();
+          ctx.shadowBlur = 20;
+          ctx.shadowColor = chip.accent;
+          roundedRectPath(chip.x, chip.y, chip.w, chip.h, 14);
+          ctx.fillStyle = 'rgba(9, 13, 18, 0.58)';
+          ctx.globalAlpha = 0.95;
+          ctx.fill();
+          ctx.restore();
+
+          ctx.save();
+          roundedRectPath(chip.x, chip.y, chip.w, chip.h, 14);
+          ctx.strokeStyle = chip.accent;
+          ctx.globalAlpha = 0.5 * shimmer;
+          ctx.lineWidth = 1.35;
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.save();
+          roundedRectPath(chip.x + 9, chip.y + 9, chip.w - 18, chip.h - 18, 10);
+          ctx.strokeStyle = chip.accent;
+          ctx.globalAlpha = 0.18;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.save();
+          ctx.strokeStyle = chip.accent;
+          ctx.globalAlpha = 0.22;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(chip.x + 18, chip.y + chip.h / 2);
+          ctx.lineTo(chip.x + chip.w - 18, chip.y + chip.h / 2);
+          ctx.moveTo(chip.x + chip.w / 2, chip.y + 18);
+          ctx.lineTo(chip.x + chip.w / 2, chip.y + chip.h - 18);
+          ctx.stroke();
+          ctx.restore();
+
+          Object.entries(chip.pins).forEach(([side, pinSet]) => {
+            pinSet.forEach((pin) => {
+              const edge = {
+                left: { x: chip.x, y: pin.y },
+                right: { x: chip.x + chip.w, y: pin.y },
+                top: { x: pin.x, y: chip.y },
+                bottom: { x: pin.x, y: chip.y + chip.h },
+              }[side];
+
+              ctx.save();
+              ctx.strokeStyle = chip.accent;
+              ctx.globalAlpha = 0.34;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(pin.x, pin.y);
+              ctx.lineTo(edge.x, edge.y);
+              ctx.stroke();
+              ctx.restore();
+            });
+          });
+        });
+
+        if (!prefersReducedMotion) {
+          requestAnimationFrame(drawCanvas);
+        }
+      }
+
+      window.addEventListener('resize', build);
+      build();
+
+      if (prefersReducedMotion) {
+        drawCanvas();
+        return;
+      }
+
+      drawCanvas();
+    })();
   </script>
 </body>
+
 </html>

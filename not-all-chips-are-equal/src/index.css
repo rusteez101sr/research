@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Bebas Neue", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-editorial: "Lora", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-tech: "Space Mono", monospace;
+
+  --color-bg: #0D1117;
+  --color-surface: #161B22;
+  --color-border: #21262D;
+  --color-teal: #00C9A7;
+  --color-amber: #F59E0B;
+  --color-text: #E6EDF3;
+  --color-muted: #8B949E;
+  --color-danger: #FF6B6B;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-text font-body selection:bg-teal/30;
+  }
+}
+
+@layer utilities {
+  .text-glow-teal {
+    text-shadow: 0 0 10px rgba(0, 201, 167, 0.5);
+  }
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+}
