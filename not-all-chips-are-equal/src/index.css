@@ -10,17 +10,35 @@
 
   --color-bg: #0D1117;
   --color-surface: #161B22;
+  --color-panel: #111927;
   --color-border: #21262D;
   --color-teal: #00C9A7;
   --color-amber: #F59E0B;
   --color-text: #E6EDF3;
   --color-muted: #8B949E;
   --color-danger: #FF6B6B;
+  --color-chat-user: #1D4ED8;
+  --color-chat-user-border: #60A5FA;
+  --color-chat-fact: #11324D;
+  --color-chat-fact-border: #7DD3FC;
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-bg text-text font-body selection:bg-teal/30;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at top left, rgba(0, 201, 167, 0.08), transparent 32%),
+      radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.12), transparent 30%);
+    background-attachment: fixed;
+  }
+
+  #root {
+    min-height: 100vh;
   }
 }
 
